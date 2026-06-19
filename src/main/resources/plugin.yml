@@ -2,5 +2,8 @@ name: Nerfstick
 version: '${version}'
 main: com.arekkuzzera.nerfstick.Nerfstick
 api-version: "1.21"
-authors: [ DrBot ]
-description: Nerfs debug sticks
+authors: [ AREKKUZZERA ]
+description: >
+  A modern Paper plugin that adds fine-grained control over the vanilla Debug Stick.
+  Allows safe usage in survival while restricting block state editing in protected regions
+  and configurable per-block permissions.
