@@ -1,40 +1,53 @@
-# 🧪 Nerfstick
+# Nerfstick
 
-**Nerfstick** is a modern Paper plugin that gives server owners fine-grained control over the vanilla Debug Stick.
+**Nerfstick** is a Paper plugin that provides controlled access to the vanilla Debug Stick through permission checks and region-aware restrictions.
 
-It allows safe usage of the Debug Stick in Survival mode while enforcing strict rules for block state modifications, including region-based restrictions and permission-driven access control.
-
----
-
-## ✨ Features
-
-* 🧪 Safe Debug Stick usage in Survival mode
-* 🔐 Fully permission-based access system
-* 🧱 Granular control over blocks and block properties
-* 🌍 Integration support for protection plugins (WorldGuard, claim systems, etc.)
-* ⚙️ Per-block and per-property configuration
-* 🚀 Optimized for Paper 1.21+
+It is designed to allow Debug Stick usage in Survival environments while enforcing strict validation of block state mutations.
 
 ---
 
-## 🧠 How it works
+## Overview
 
-Nerfstick intercepts Debug Stick interactions at runtime and validates every attempted block state change against server-defined rules.
+The plugin intercepts Debug Stick interactions and evaluates each attempted block state change against configured rules.
 
-This allows server owners to:
+It supports:
 
-* Prevent Debug Stick usage in protected regions
-* Restrict specific blocks from being modified
-* Limit editable block properties (e.g. facing, powered, waterlogged)
-* Allow controlled block state cycling in Survival environments
-
-All modifications are validated before being applied, ensuring no unintended state changes occur.
+* Permission-based access control
+* Region/protection-aware restrictions
+* Per-block and per-property limitations
+* Safe validation of block state transitions prior to application
 
 ---
 
-## 🔐 Permissions
+## Features
 
-### Base usage
+* Debug Stick usage control in Survival mode
+* Permission-driven authorization model
+* Block and block-property level restrictions
+* Integration hooks for protection systems (e.g. WorldGuard, claim plugins)
+* Configurable behavior per block type
+* Paper 1.21+ compatible implementation
+
+---
+
+## Internal Behavior
+
+All Debug Stick interactions are processed through a validation layer before any modification is applied.
+
+Validation checks include:
+
+* Player permissions
+* Block type restrictions
+* Property-level access rules
+* Region/protection constraints (if applicable integrations are present)
+
+If any condition fails, the interaction is denied and no state change is performed.
+
+---
+
+## Permissions
+
+### Base permissions
 
 ```
 nerfstick.use.minecraft.*
@@ -42,7 +55,7 @@ nerfstick.use.minecraft.lever.*
 nerfstick.use.minecraft.furnace.facing
 ```
 
-### Global bypass (optional)
+### Global bypass
 
 ```
 minecraft.debugstick.always
@@ -50,7 +63,9 @@ minecraft.debugstick.always
 
 ---
 
-## 🧱 Example permission nodes
+## Example permissions
+
+### Block-level access
 
 ```
 nerfstick.use.minecraft.barrel.*
@@ -62,7 +77,7 @@ nerfstick.use.minecraft.rail.*
 nerfstick.use.minecraft.observer.*
 ```
 
-### Property-level control
+### Property-level access
 
 ```
 nerfstick.use.minecraft.dispenser.facing
@@ -71,31 +86,27 @@ nerfstick.use.minecraft.dropper.facing
 
 ---
 
-## 🌍 Compatibility
+## Compatibility
 
-Nerfstick provides hooks for popular protection systems, including:
+The plugin exposes hooks for integration with region and protection systems, including:
 
 * WorldGuard
 * GriefPrevention
-* Other region/claim-based protection plugins
+* Other claim/region protection plugins providing applicable APIs
 
 ---
 
-## 📦 Requirements
+## Requirements
 
 * Paper 1.21+
 * Java 21+
 
 ---
 
-## 🔄 Fork status
-
-This project is a maintained fork of the original Nerfstick plugin.
-
-### Improvements
+### Changes from upstream
 
 * Updated for Paper 1.21+ API
-* Removed deprecated NMS usage
-* Improved permission resolution system
-* Safer and more consistent block state validation
-* Better compatibility with modern protection plugins
+* Removal of deprecated NMS usage
+* Revised permission resolution logic
+* Hardened block state validation pipeline
+* Improved compatibility with modern protection systems
