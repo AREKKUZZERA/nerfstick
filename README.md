@@ -1,41 +1,101 @@
-# Nerfstick
-Nerfs debug stick to make it more fair in survival. For example, Nerfstick can prevents debug usage on doors and beds since you can duplicate the item like that. It can also prevent usage on waterloggable blocks in the nether since you can add water in the nether like that. This should also respect claims and other protections. It's super configurable too with permissions! 
+# 🧪 Nerfstick
 
-## Setup for Luckperms
-Here's what I use on my server and it's a good starting point. Luckperms works with regex and that's what the r= means in the permissions below but some permission plugins might not support this so if you're not using Luckperms, look into that some more.
+**Nerfstick** is a modern Paper plugin that gives server owners fine-grained control over the vanilla Debug Stick.
 
-Set **minecraft.debugstick.always** to true to allow players to use the debug stick outside of creative mode. This permission comes from Spigot so if you're not using Spigot or a fork of it, see if there's another permissoion or plugin to do the same.
+It allows safe usage of the Debug Stick in Survival mode while enforcing strict rules for block state modifications, including region-based restrictions and permission-driven access control.
 
-Set **r=nerfstick.use.minecraft.\*.waterlogged** to **false** in context of dimension-type **the_nether**. This is to prevent waterlogging blocks in the nether.
+---
 
-Set these permissions to true. It's a whitelist of blocks that could be modified with the stick.
-* nerfstick.use.minecraft.barrel.\*
-* nerfstick.use.minecraft.bell.\*
-* nerfstick.use.minecraft.furnace.\*
-* nerfstick.use.minecraft.ladder.\*
-* nerfstick.use.minecraft.lectern.\*
-* nerfstick.use.minecraft.lever.\*
-* nerfstick.use.minecraft.lightning_rod.\*
-* nerfstick.use.minecraft.note_block.\*
-* nerfstick.use.minecraft.observer.\*
-* nerfstick.use.minecraft.rail.\*
-* nerfstick.use.minecraft.redstone_comparator.\*
-* nerfstick.use.minecraft.tripwire_hook.\*
-* nerfstick.use.redstone_lamp.\*
-* nerfstick.use.minecraft.ender_chest
-* r=nerfstick.use.minecraft.\*_chest.\*
-* r=nerfstick.use.minecraft.\*_fence.\*
-* r=nerfstick.use.minecraft.\*_gate.\*
-* r=nerfstick.use.minecraft.\*_glazed_terracotta.\*
-* r=nerfstick.use.minecraft.\*_lantern.\*
-* r=nerfstick.use.minecraft.\*_leaves.\*
-* r=nerfstick.use.minecraft.\*_log.\*
-* r=nerfstick.use.minecraft.\*_rail.\*
-* r=nerfstick.use.minecraft.\*_repeater.\*
-* r=nerfstick.use.minecraft.\*_sign.\*
-* r=nerfstick.use.minecraft.\*_stairs.\*
-* r=nerfstick.use.minecraft.\*_trapdoor.\*
-* r=nerfstick.use.minecraft.\*_wall.\*
+## ✨ Features
 
+* 🧪 Safe Debug Stick usage in Survival mode
+* 🔐 Fully permission-based access system
+* 🧱 Granular control over blocks and block properties
+* 🌍 Integration support for protection plugins (WorldGuard, claim systems, etc.)
+* ⚙️ Per-block and per-property configuration
+* 🚀 Optimized for Paper 1.21+
 
+---
 
+## 🧠 How it works
+
+Nerfstick intercepts Debug Stick interactions at runtime and validates every attempted block state change against server-defined rules.
+
+This allows server owners to:
+
+* Prevent Debug Stick usage in protected regions
+* Restrict specific blocks from being modified
+* Limit editable block properties (e.g. facing, powered, waterlogged)
+* Allow controlled block state cycling in Survival environments
+
+All modifications are validated before being applied, ensuring no unintended state changes occur.
+
+---
+
+## 🔐 Permissions
+
+### Base usage
+
+```
+nerfstick.use.minecraft.*
+nerfstick.use.minecraft.lever.*
+nerfstick.use.minecraft.furnace.facing
+```
+
+### Global bypass (optional)
+
+```
+minecraft.debugstick.always
+```
+
+---
+
+## 🧱 Example permission nodes
+
+```
+nerfstick.use.minecraft.barrel.*
+nerfstick.use.minecraft.bell.*
+nerfstick.use.minecraft.furnace.*
+nerfstick.use.minecraft.lever.*
+nerfstick.use.minecraft.note_block.*
+nerfstick.use.minecraft.rail.*
+nerfstick.use.minecraft.observer.*
+```
+
+### Property-level control
+
+```
+nerfstick.use.minecraft.dispenser.facing
+nerfstick.use.minecraft.dropper.facing
+```
+
+---
+
+## 🌍 Compatibility
+
+Nerfstick provides hooks for popular protection systems, including:
+
+* WorldGuard
+* GriefPrevention
+* Other region/claim-based protection plugins
+
+---
+
+## 📦 Requirements
+
+* Paper 1.21+
+* Java 21+
+
+---
+
+## 🔄 Fork status
+
+This project is a maintained fork of the original Nerfstick plugin.
+
+### Improvements
+
+* Updated for Paper 1.21+ API
+* Removed deprecated NMS usage
+* Improved permission resolution system
+* Safer and more consistent block state validation
+* Better compatibility with modern protection plugins
