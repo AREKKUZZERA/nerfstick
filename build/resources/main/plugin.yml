@@ -1,0 +1,6 @@
+name: Nerfstick
+version: '1.0.4'
+main: com.arekkuzzera.nerfstick.Nerfstick
+api-version: "1.21"
+authors: [ DrBot ]
+description: Nerfs debug sticks
