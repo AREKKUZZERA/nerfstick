@@ -120,3 +120,14 @@ Nerfstick can optionally integrate with:
 * Revised permission resolution logic
 * Improved validation pipeline for block state changes
 * Enhanced compatibility with modern protection plugins
+
+---
+
+## 🙏 Credits
+
+Nerfstick was originally created by **akdukaan** and **Reimnop**.
+
+* [Original GitHub Repository](https://github.com/akdukaan/Nerfstick?utm_source=chatgpt.com)
+* [Modrinth Project Page](https://modrinth.com/plugin/nerfstick?utm_source=chatgpt.com)
+
+This version is a maintained / updated fork with improvements for modern Paper (1.21+) compatibility.
