@@ -1,0 +1,49 @@
+# ========== Gradle ==========
+.gradle/
+build/
+out/
+classes/
+*.class
+
+# Gradle wrapper logs
+gradle-app.setting
+
+# ========== Paperweight / Minecraft NMS caches ==========
+run/
+logs/
+paper-cache/
+paperweight/
+**/taskCache/
+**/mappedServerJar.jar
+**/reobfJar.jar
+
+# ========== IDE (VS Code) ==========
+.vscode/
+.settings/
+.project
+.classpath
+
+# Java language server cache
+*.launch
+
+# ========== IntelliJ (если вдруг откроешь там) ==========
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# ========== OS ==========
+.DS_Store
+Thumbs.db
+
+# ========== Minecraft plugin artifacts ==========
+*.jar
+!src/
+
+# BUT allow build scripts if needed
+!gradle/wrapper/gradle-wrapper.jar
+
+# ========== Logs / temp ==========
+*.log
+tmp/
+temp/
