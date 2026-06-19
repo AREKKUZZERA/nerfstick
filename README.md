@@ -1,51 +1,36 @@
 # Nerfstick
 
-**Nerfstick** is a Paper plugin that provides controlled access to the vanilla Debug Stick through permission checks and region-aware restrictions.
+**Nerfstick** is a Paper plugin that provides controlled access to the vanilla Debug Stick through permission-based rules and optional region-aware restrictions.
 
-It is designed to allow Debug Stick usage in Survival environments while enforcing strict validation of block state mutations.
+It ensures Debug Stick interactions are validated before any block state mutation is applied.
 
 ---
 
 ## Overview
 
-The plugin intercepts Debug Stick interactions and evaluates each attempted block state change against configured rules.
+Nerfstick intercepts Debug Stick usage and evaluates every interaction against a defined permission and rule set.
 
-It supports:
+The system enforces:
 
-* Permission-based access control
-* Region/protection-aware restrictions
-* Per-block and per-property limitations
-* Safe validation of block state transitions prior to application
+* Permission-based authorization
+* Block-level and property-level restrictions
+* Optional integration with region/protection plugins
+* Pre-application validation of all block state changes
 
 ---
 
 ## Features
 
-* Debug Stick usage control in Survival mode
-* Permission-driven authorization model
-* Block and block-property level restrictions
-* Integration hooks for protection systems (e.g. WorldGuard, claim plugins)
-* Configurable behavior per block type
-* Paper 1.21+ compatible implementation
+* Debug Stick control in Survival mode
+* Fine-grained permission system
+* Block and property-level access control
+* Protection plugin hooks (WorldGuard, claim systems, etc.)
+* Configurable whitelist system
+* Paper 1.21+ compatible
 
 ---
 
-## Internal Behavior
-
-All Debug Stick interactions are processed through a validation layer before any modification is applied.
-
-Validation checks include:
-
-* Player permissions
-* Block type restrictions
-* Property-level access rules
-* Region/protection constraints (if applicable integrations are present)
-
-If any condition fails, the interaction is denied and no state change is performed.
-
----
-
-## Permissions
+## 🔐 Permissions
 
 ### Base permissions
 
@@ -63,40 +48,65 @@ minecraft.debugstick.always
 
 ---
 
-## Example permissions
-
-### Block-level access
+## 🧱 Recommended whitelist (blocks)
 
 ```
 nerfstick.use.minecraft.barrel.*
 nerfstick.use.minecraft.bell.*
 nerfstick.use.minecraft.furnace.*
+nerfstick.use.minecraft.ladder.*
+nerfstick.use.minecraft.lectern.*
 nerfstick.use.minecraft.lever.*
+nerfstick.use.minecraft.lightning_rod.*
 nerfstick.use.minecraft.note_block.*
-nerfstick.use.minecraft.rail.*
 nerfstick.use.minecraft.observer.*
-```
-
-### Property-level access
-
-```
+nerfstick.use.minecraft.rail.*
+nerfstick.use.minecraft.redstone_comparator.*
+nerfstick.use.minecraft.tripwire_hook.*
+nerfstick.use.minecraft.redstone_lamp.*
+nerfstick.use.minecraft.ender_chest.*
 nerfstick.use.minecraft.dispenser.facing
 nerfstick.use.minecraft.dropper.facing
+nerfstick.use.minecraft.dried_ghast.facing
+nerfstick.use.minecraft.leaf_litter.facing
+nerfstick.use.minecraft.wildflowers.facing
 ```
 
 ---
 
-## Compatibility
+## 🌿 Block families (regex-based permissions)
 
-The plugin exposes hooks for integration with region and protection systems, including:
+```
+r=nerfstick.use.minecraft.*_chest.*
+r=nerfstick.use.minecraft.*_fence.*
+r=nerfstick.use.minecraft.*_gate.*
+r=nerfstick.use.minecraft.*_glazed_terracotta.*
+r=nerfstick.use.minecraft.*_lantern.*
+r=nerfstick.use.minecraft.*_leaves.*
+r=nerfstick.use.minecraft.*_log.*
+r=nerfstick.use.minecraft.*_rail.*
+r=nerfstick.use.minecraft.*_repeater.*
+r=nerfstick.use.minecraft.*_sign.*
+r=nerfstick.use.minecraft.*_stairs.*
+r=nerfstick.use.minecraft.*_slab.*
+r=nerfstick.use.minecraft.*_trapdoor.*
+r=nerfstick.use.minecraft.*_wall.*
+r=nerfstick.use.minecraft.*_door.hinge
+```
+
+---
+
+## 🌍 Compatibility
+
+Nerfstick can optionally integrate with:
 
 * WorldGuard
 * GriefPrevention
-* Other claim/region protection plugins providing applicable APIs
+* Other region/claim protection plugins providing APIs for event interception
 
 ---
 
-## Requirements
+## 📦 Requirements
 
 * Paper 1.21+
 * Java 21+
@@ -106,7 +116,7 @@ The plugin exposes hooks for integration with region and protection systems, inc
 ### Changes from upstream
 
 * Updated for Paper 1.21+ API
-* Removal of deprecated NMS usage
+* Removed deprecated NMS usage
 * Revised permission resolution logic
-* Hardened block state validation pipeline
-* Improved compatibility with modern protection systems
+* Improved validation pipeline for block state changes
+* Enhanced compatibility with modern protection plugins
