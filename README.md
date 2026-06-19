@@ -120,6 +120,44 @@ Nerfstick can optionally integrate with:
 * Revised permission resolution logic
 * Improved validation pipeline for block state changes
 * Enhanced compatibility with modern protection plugins
+* **Fixed:** enum-valued block properties (`facing`, `axis`, `half`, `shape`,
+  `hinge`, `instrument`, `attachment`, `orientation`, `rotation`, ...) — these
+  previously did nothing on right-click; they now cycle correctly through every
+  legal value for the block.
+* **Fixed:** the `north`/`east`/`south`/`west`/`up`/`down` boolean faces on
+  fences, glass panes, walls, and glow lichen, which use a different Bukkit API
+  (`MultipleFacing`) than every other property.
+* **Fixed:** the `nerfstick.use.minecraft.<block>.<state>` permission whitelist
+  from the README was defined but never actually checked — every player could
+  edit every property regardless of permissions. It is now enforced per
+  property: unauthorized properties are filtered out of the selection cycle
+  entirely.
+* **Fixed:** a crash (`ArrayIndexOutOfBoundsException`) in permission
+  resolution for any block ID without an explicit namespace.
+* Added `softdepend` on WorldGuard/GriefPrevention so protection checks are
+  reliable regardless of plugin load order.
+* Added a lightweight, notification-only update checker (Modrinth, falling
+  back to GitHub Releases) — see **Updates** below.
+
+---
+
+## 🔄 Updates
+
+On startup, Nerfstick checks Modrinth (and GitHub Releases as a fallback) once,
+asynchronously, for a newer version. If one is found:
+
+* It's logged to console.
+* Players with `nerfstick.admin` (defaults to server operators) get a clickable
+  chat link on join.
+
+It **never downloads or replaces the plugin jar automatically** — silently
+swapping binaries on a running server has no checksum/signature verification
+and risks corruption mid-write, so updates always stay a manual, deliberate
+action by the operator. You can disable the check entirely in `config.yml`:
+
+```yaml
+check-for-updates: false
+```
 
 ---
 

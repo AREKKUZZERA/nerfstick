@@ -12,7 +12,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,8 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NerfstickListener implements Listener {
 
     /**
-     * Храним выбранный "property" для игрока отдельно.
-     * key = playerUUID + blockType
+     * Stores the currently-selected property per player+block-type, e.g.
+     * key = "<playerUUID>:minecraft:oak_stairs" -> "facing".
      */
     private final Map<String, String> selectedProperty = new ConcurrentHashMap<>();
 
@@ -37,6 +36,9 @@ public class NerfstickListener implements Listener {
         Action action = event.getAction();
         if (action != Action.LEFT_CLICK_BLOCK && action != Action.RIGHT_CLICK_BLOCK) return;
 
+        // Vanilla only mutates block state on RIGHT_CLICK and only cycles the
+        // selected property on LEFT_CLICK; cancel both so Bukkit/Paper never
+        // applies its own default debug-stick logic on top of ours.
         event.setCancelled(true);
 
         Player player = event.getPlayer();
@@ -51,16 +53,21 @@ public class NerfstickListener implements Listener {
         }
 
         BlockData data = block.getBlockData();
-        List<String> properties = extractProperties(data);
+        String blockId = block.getType().getKey().toString();
+
+        List<String> properties = BlockStateUtil.extractProperties(data)
+                .stream()
+                .filter(prop -> Permission.allowBlockState(player, blockId, prop))
+                .toList();
 
         if (properties.isEmpty()) {
             player.sendActionBar(
-                    Component.text("Block has no editable properties!", TextColor.color(0xFFAA00))
+                    Component.text("No editable properties available for this block!", TextColor.color(0xFFAA00))
             );
             return;
         }
 
-        String key = player.getUniqueId() + ":" + block.getType();
+        String key = player.getUniqueId() + ":" + blockId;
         String current = selectedProperty.getOrDefault(key, properties.get(0));
 
         if (!properties.contains(current)) {
@@ -82,11 +89,23 @@ public class NerfstickListener implements Listener {
 
         } else {
 
-            applyProperty(block, data, current, inverse);
+            BlockData updated = BlockStateUtil.cycleProperty(data, current, inverse);
+
+            if (updated == null) {
+                player.sendActionBar(
+                        Component.text("Could not cycle property: ", TextColor.color(0xFFAA00))
+                                .append(Component.text(current, TextColor.color(0xFF5555)))
+                );
+                return;
+            }
+
+            block.setBlockData(updated, true);
+
+            String newValue = BlockStateUtil.getCurrentValue(updated, current);
 
             player.sendActionBar(
                     Component.text("Applied: ", TextColor.color(0xFFAA00))
-                            .append(Component.text(current, TextColor.color(0x55FF55)))
+                            .append(Component.text(current + "=" + newValue, TextColor.color(0x55FF55)))
                             .append(Component.text(" → ", TextColor.color(0xFFAA00)))
                             .append(Component.text(block.getType().toString(), TextColor.color(0x55FF55)))
             );
@@ -94,96 +113,7 @@ public class NerfstickListener implements Listener {
     }
 
     // -----------------------------
-    // PROPERTY EXTRACTION
-    // -----------------------------
-
-    @SuppressWarnings("unused")
-    private List<String> extractProperties(BlockData data) {
-        List<String> props = new ArrayList<>();
-
-        for (String key : data.getAsString().split("\\[")) {
-            // not used, fallback below
-        }
-
-        // Paper API way: only few block types expose mutability
-        // We'll support generic "blockdata state cycling" via string form
-        String[] parts = data.getAsString().split("\\[");
-        if (parts.length < 2) return props;
-
-        String statePart = parts[1].replace("]", "");
-        String[] entries = statePart.split(",");
-
-        for (String entry : entries) {
-            if (entry.contains("=")) {
-                props.add(entry.split("=")[0].trim());
-            }
-        }
-
-        return props;
-    }
-
-    // -----------------------------
-    // APPLY PROPERTY CHANGE
-    // -----------------------------
-
-    private void applyProperty(Block block, BlockData data, String property, boolean inverse) {
-
-        String serialized = data.getAsString();
-
-        String[] split = serialized.split("\\[");
-        if (split.length < 2) return;
-
-        String base = split[0];
-        String state = split[1].replace("]", "");
-
-        String[] entries = state.split(",");
-
-        List<String> updated = new ArrayList<>();
-
-        for (String e : entries) {
-            if (!e.contains("=")) continue;
-
-            String[] kv = e.split("=");
-            String key = kv[0].trim();
-            String value = kv[1].trim();
-
-            if (key.equals(property)) {
-                // toggle / cycle for booleans or enums (simple heuristic)
-                value = cycleValue(value, inverse);
-            }
-
-            updated.add(key + "=" + value);
-        }
-
-        String newState = String.join(",", updated);
-        String finalData = base + "[" + newState + "]";
-
-        BlockData newData = org.bukkit.Bukkit.createBlockData(finalData);
-        block.setBlockData(newData, false);
-    }
-
-    // -----------------------------
-    // VALUE CYCLING (GENERIC)
-    // -----------------------------
-
-    private String cycleValue(String value, boolean inverse) {
-
-        if ("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value)) {
-            return Boolean.toString(!Boolean.parseBoolean(value));
-        }
-
-        try {
-            int v = Integer.parseInt(value);
-            return Integer.toString(inverse ? v - 1 : v + 1);
-        } catch (NumberFormatException ignored) {
-            // enum fallback
-        }
-
-        return value;
-    }
-
-    // -----------------------------
-    // LIST CYCLING
+    // LIST CYCLING (which property is selected)
     // -----------------------------
 
     private String getRelative(List<String> list, String current, boolean inverse) {

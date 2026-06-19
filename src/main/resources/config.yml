@@ -1,0 +1,7 @@
+# Nerfstick configuration
+
+# When true, the plugin checks Modrinth (and GitHub as a fallback) once on
+# startup for a newer release and logs/notifies admins if one is found.
+# This is a notification-only check: it never downloads or installs files
+# automatically, you still update the jar yourself.
+check-for-updates: true

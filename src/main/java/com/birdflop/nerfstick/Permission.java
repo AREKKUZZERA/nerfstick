@@ -31,9 +31,15 @@ public final class Permission {
     }
 
     public static boolean allowBlockState(Player player, String blockId, String stateName) {
-        String[] blockIdParts = blockId.split(":");
-        String namespace = blockIdParts[0];
-        String id = blockIdParts[1];
+        String namespace = "minecraft";
+        String id = blockId;
+
+        int colon = blockId.indexOf(':');
+        if (colon != -1) {
+            namespace = blockId.substring(0, colon);
+            id = blockId.substring(colon + 1);
+        }
+
         return player.hasPermission(makeGroup(BASE_GROUP, "use", namespace, id, stateName));
     }
 

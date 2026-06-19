@@ -7,3 +7,17 @@ description: >
   A modern Paper plugin that adds fine-grained control over the vanilla Debug Stick.
   Allows safe usage in survival while restricting block state editing in protected regions
   and configurable per-block permissions.
+website: https://github.com/AREKKUZZERA/nerfstick
+
+# Soft-depend so that, if WorldGuard/GriefPrevention are present, they're
+# guaranteed to be loaded and enabled before Nerfstick starts checking them.
+# Both stay fully optional: the plugin runs fine if neither is installed.
+softdepend: [ WorldGuard, GriefPrevention ]
+
+permissions:
+  nerfstick.admin:
+    description: Receive update-available notifications on join.
+    default: op
+  nerfstick.use.*:
+    description: Allow editing every block-state property with the Debug Stick.
+    default: false
