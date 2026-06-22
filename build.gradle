@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.arekkuzzera'
-version = '1.0.5'
+version = '1.0.6'
 
 repositories {
     mavenCentral()
@@ -58,4 +58,8 @@ processResources {
     filesMatching('plugin.yml') {
         expand props
     }
+}
+
+tasks.named('papermakeFinalizeBuild') {
+    dependsOn tasks.named('reobfJar')
 }
