@@ -6,7 +6,7 @@ authors: [ AREKKUZZERA ]
 description: >
   A modern Paper plugin that adds fine-grained control over the vanilla Debug Stick.
   Allows safe usage in survival while restricting block state editing in protected regions
-  and configurable per-block permissions.
+  and permission-based block-state manipulation categories.
 website: https://github.com/AREKKUZZERA/nerfstick
 
 # Soft-depend so that, if WorldGuard/GriefPrevention are present, they're
@@ -18,6 +18,42 @@ permissions:
   nerfstick.admin:
     description: Receive update-available notifications on join.
     default: op
-  nerfstick.use.*:
-    description: Allow editing every block-state property with the Debug Stick.
+  nerfstick.use:
+    description: Allow using Nerfstick's controlled Debug Stick handler.
+    default: false
+  nerfstick.manipulation.*:
+    description: Allow every Debug Stick manipulation category.
+    default: false
+    children:
+      nerfstick.manipulation.direction: true
+      nerfstick.manipulation.openable: true
+      nerfstick.manipulation.power: true
+      nerfstick.manipulation.water: true
+      nerfstick.manipulation.shape: true
+      nerfstick.manipulation.level: true
+      nerfstick.manipulation.multi_face: true
+      nerfstick.manipulation.misc: true
+  nerfstick.manipulation.direction:
+    description: Allow direction and orientation properties.
+    default: false
+  nerfstick.manipulation.openable:
+    description: Allow openable and door-like properties.
+    default: false
+  nerfstick.manipulation.power:
+    description: Allow redstone and power-related properties.
+    default: false
+  nerfstick.manipulation.water:
+    description: Allow waterlogged state changes.
+    default: false
+  nerfstick.manipulation.shape:
+    description: Allow shape, attachment, face, and type properties.
+    default: false
+  nerfstick.manipulation.level:
+    description: Allow numeric level, age, delay, and count properties.
+    default: false
+  nerfstick.manipulation.multi_face:
+    description: Allow per-face connection toggles on blocks such as walls, fences, panes, and lichen.
+    default: false
+  nerfstick.manipulation.misc:
+    description: Allow remaining vanilla block-state properties not covered by a dedicated category.
     default: false

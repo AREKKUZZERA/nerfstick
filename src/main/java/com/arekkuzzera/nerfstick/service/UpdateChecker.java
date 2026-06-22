@@ -1,4 +1,4 @@
-package com.birdflop.nerfstick;
+package com.arekkuzzera.nerfstick.service;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -20,16 +20,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Lightweight update checker: queries Modrinth first, falls back to the GitHub
- * Releases API if Modrinth is unreachable, and only ever notifies (console +
- * players with {@code nerfstick.admin}) about a newer version being available.
- * <p>
- * It never downloads or replaces the plugin jar automatically: silently swapping
- * binaries on a running server is unsafe (no checksum/signature verification,
- * no restart, possible mid-write corruption), so this intentionally stays
- * notification-only and links the operator to the release page.
- */
 public final class UpdateChecker implements Listener {
 
     private static final String MODRINTH_PROJECT = "nerfstick-remastered";
@@ -46,8 +36,6 @@ public final class UpdateChecker implements Listener {
 
     private final JavaPlugin plugin;
     private final String currentVersion;
-
-    /** Cached result of the last check, shared with players joining after it completes. */
     private final AtomicReference<UpdateResult> latestResult = new AtomicReference<>();
 
     public UpdateChecker(JavaPlugin plugin) {
@@ -55,10 +43,6 @@ public final class UpdateChecker implements Listener {
         this.currentVersion = plugin.getPluginMeta().getVersion();
     }
 
-    private record UpdateResult(boolean updateAvailable, String latestVersion, String downloadPage) {
-    }
-
-    /** Runs one check asynchronously and logs/broadcasts the result. */
     public void checkAsync() {
         new BukkitRunnable() {
             @Override
@@ -67,7 +51,7 @@ public final class UpdateChecker implements Listener {
                 latestResult.set(result);
 
                 if (result == null) {
-                    plugin.getLogger().info("Could not check for updates (Modrinth and GitHub were both unreachable).");
+                    plugin.getLogger().info("Could not check for updates.");
                     return;
                 }
 
@@ -84,10 +68,14 @@ public final class UpdateChecker implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         UpdateResult result = latestResult.get();
-        if (result == null || !result.updateAvailable()) return;
+        if (result == null || !result.updateAvailable()) {
+            return;
+        }
 
         Player player = event.getPlayer();
-        if (!player.hasPermission("nerfstick.admin") && !player.isOp()) return;
+        if (!player.hasPermission("nerfstick.admin") && !player.isOp()) {
+            return;
+        }
 
         player.sendMessage(
                 Component.text("[Nerfstick] ", TextColor.color(0x55FF55))
@@ -101,14 +89,12 @@ public final class UpdateChecker implements Listener {
 
     private UpdateResult fetchLatest() {
         UpdateResult modrinth = tryModrinth();
-        if (modrinth != null) return modrinth;
-        return tryGitHub();
+        return modrinth != null ? modrinth : tryGitHub();
     }
 
     private UpdateResult tryModrinth() {
         try {
             String body = httpGet(MODRINTH_API);
-            // Versions are returned newest-first; take the first "version_number" field.
             Matcher matcher = VERSION_FIELD.matcher(body);
             if (matcher.find()) {
                 String latest = matcher.group(1);
@@ -117,6 +103,7 @@ public final class UpdateChecker implements Listener {
         } catch (Exception e) {
             plugin.getLogger().fine("Modrinth update check failed: " + e.getMessage());
         }
+
         return null;
     }
 
@@ -132,6 +119,7 @@ public final class UpdateChecker implements Listener {
         } catch (Exception e) {
             plugin.getLogger().fine("GitHub update check failed: " + e.getMessage());
         }
+
         return null;
     }
 
@@ -142,43 +130,44 @@ public final class UpdateChecker implements Listener {
         connection.setConnectTimeout(5000);
         connection.setReadTimeout(5000);
 
-        try (InputStream in = connection.getInputStream()) {
-            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        try (InputStream inputStream = connection.getInputStream()) {
+            return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
 
-    /**
-     * Compares dot-separated numeric version strings (e.g. "1.0.4" vs "1.0.10").
-     * Falls back to a plain inequality check if either string has a non-numeric
-     * component (pre-release tags, hashes, etc.), treating any difference as "newer"
-     * so the operator isn't silently left on a stale build.
-     */
     private boolean isNewer(String remote, String local) {
-        if (remote.equalsIgnoreCase(local)) return false;
+        if (remote.equalsIgnoreCase(local)) {
+            return false;
+        }
 
         String[] remoteParts = remote.toLowerCase(Locale.ROOT).split("[.\\-+]");
         String[] localParts = local.toLowerCase(Locale.ROOT).split("[.\\-+]");
         int length = Math.max(remoteParts.length, localParts.length);
 
-        for (int i = 0; i < length; i++) {
-            int r = parseIntOrMinusOne(i < remoteParts.length ? remoteParts[i] : "0");
-            int l = parseIntOrMinusOne(i < localParts.length ? localParts[i] : "0");
+        for (int index = 0; index < length; index++) {
+            int remotePart = parseIntOrMinusOne(index < remoteParts.length ? remoteParts[index] : "0");
+            int localPart = parseIntOrMinusOne(index < localParts.length ? localParts[index] : "0");
 
-            if (r == -1 || l == -1) {
-                // Non-numeric segment (e.g. "beta"): can't compare reliably,
-                // so any textual difference is reported as an update.
+            if (remotePart == -1 || localPart == -1) {
                 return !remote.equalsIgnoreCase(local);
             }
-            if (r != l) return r > l;
+
+            if (remotePart != localPart) {
+                return remotePart > localPart;
+            }
         }
+
         return false;
     }
 
-    private int parseIntOrMinusOne(String s) {
+    private int parseIntOrMinusOne(String value) {
         try {
-            return Integer.parseInt(s);
+            return Integer.parseInt(value);
         } catch (NumberFormatException e) {
             return -1;
         }
+    }
+
+    private record UpdateResult(boolean updateAvailable, String latestVersion, String downloadPage) {
     }
 }

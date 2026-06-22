@@ -1,7 +1,12 @@
 package com.arekkuzzera.nerfstick;
 
-import com.birdflop.nerfstick.NerfstickListener;
-import com.birdflop.nerfstick.UpdateChecker;
+import com.arekkuzzera.nerfstick.listener.DebugStickListener;
+import com.arekkuzzera.nerfstick.service.BlockStateService;
+import com.arekkuzzera.nerfstick.service.DebugStickService;
+import com.arekkuzzera.nerfstick.service.ManipulationRegistry;
+import com.arekkuzzera.nerfstick.service.PermissionService;
+import com.arekkuzzera.nerfstick.service.ProtectionService;
+import com.arekkuzzera.nerfstick.service.UpdateChecker;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Nerfstick extends JavaPlugin {
@@ -10,7 +15,17 @@ public final class Nerfstick extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
 
-        getServer().getPluginManager().registerEvents(new NerfstickListener(), this);
+        ManipulationRegistry manipulationRegistry = new ManipulationRegistry();
+        PermissionService permissionService = new PermissionService();
+        ProtectionService protectionService = new ProtectionService();
+        BlockStateService blockStateService = new BlockStateService(manipulationRegistry);
+        DebugStickService debugStickService = new DebugStickService(
+                permissionService,
+                protectionService,
+                blockStateService
+        );
+
+        getServer().getPluginManager().registerEvents(new DebugStickListener(debugStickService), this);
 
         if (getConfig().getBoolean("check-for-updates", true)) {
             UpdateChecker updateChecker = new UpdateChecker(this);
