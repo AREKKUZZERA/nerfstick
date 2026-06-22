@@ -1,6 +1,6 @@
 # Nerfstick
 
-**Nerfstick** is a Paper plugin that provides controlled access to the vanilla Debug Stick through permission-based rules and optional region-aware restrictions.
+**Nerfstick** is a Paper plugin that provides controlled access to the vanilla Debug Stick through permission-based manipulation categories and optional region-aware restrictions.
 
 It ensures Debug Stick interactions are validated before any block state mutation is applied.
 
@@ -13,7 +13,7 @@ Nerfstick intercepts Debug Stick usage and evaluates every interaction against a
 The system enforces:
 
 * Permission-based authorization
-* Block-level and property-level restrictions
+* Manipulation-category restrictions
 * Optional integration with region/protection plugins
 * Pre-application validation of all block state changes
 
@@ -23,7 +23,7 @@ The system enforces:
 
 * Debug Stick control in Survival mode
 * Fine-grained permission system
-* Block and property-level access control
+* Permission categories for groups of block-state manipulations
 * Protection plugin hooks (WorldGuard, claim systems, etc.)
 * Configurable whitelist system
 * Paper 1.21+ compatible
@@ -35,63 +35,41 @@ The system enforces:
 ### Base permissions
 
 ```
-nerfstick.use.minecraft.*
-nerfstick.use.minecraft.lever.*
-nerfstick.use.minecraft.furnace.facing
+nerfstick.use
 ```
+
+Allows the player to use Nerfstick's controlled Debug Stick handler.
+
+### Manipulation permissions
+
+```
+nerfstick.manipulation.direction
+nerfstick.manipulation.openable
+nerfstick.manipulation.power
+nerfstick.manipulation.water
+nerfstick.manipulation.shape
+nerfstick.manipulation.level
+nerfstick.manipulation.multi_face
+nerfstick.manipulation.misc
+nerfstick.manipulation.*
+```
+
+These permissions are intentionally not per block. A permission grants a type of
+block-state manipulation across all blocks that expose that state:
+
+* `direction` — `facing`, `rotation`, `axis`, `orientation`
+* `openable` — `open`, `hinge`, `half`, door-like states
+* `power` — `powered`, `lit`, `enabled`, `triggered`, comparator mode/power
+* `water` — `waterlogged`
+* `shape` — `shape`, `type`, `thickness`, `attachment`, `face`, similar form states
+* `level` — numeric states such as `age`, `level`, `delay`, `distance`, `layers`
+* `multi_face` — `north`, `east`, `south`, `west`, `up`, `down` connection toggles
+* `misc` — remaining vanilla block states that do not fit a dedicated category
 
 ### Global bypass
 
 ```
 minecraft.debugstick.always
-```
-
----
-
-## 🧱 Recommended whitelist (blocks)
-
-```
-nerfstick.use.minecraft.barrel.*
-nerfstick.use.minecraft.bell.*
-nerfstick.use.minecraft.furnace.*
-nerfstick.use.minecraft.ladder.*
-nerfstick.use.minecraft.lectern.*
-nerfstick.use.minecraft.lever.*
-nerfstick.use.minecraft.lightning_rod.*
-nerfstick.use.minecraft.note_block.*
-nerfstick.use.minecraft.observer.*
-nerfstick.use.minecraft.rail.*
-nerfstick.use.minecraft.redstone_comparator.*
-nerfstick.use.minecraft.tripwire_hook.*
-nerfstick.use.minecraft.redstone_lamp.*
-nerfstick.use.minecraft.ender_chest.*
-nerfstick.use.minecraft.dispenser.facing
-nerfstick.use.minecraft.dropper.facing
-nerfstick.use.minecraft.dried_ghast.facing
-nerfstick.use.minecraft.leaf_litter.facing
-nerfstick.use.minecraft.wildflowers.facing
-```
-
----
-
-## 🌿 Block families (regex-based permissions)
-
-```
-r=nerfstick.use.minecraft.*_chest.*
-r=nerfstick.use.minecraft.*_fence.*
-r=nerfstick.use.minecraft.*_gate.*
-r=nerfstick.use.minecraft.*_glazed_terracotta.*
-r=nerfstick.use.minecraft.*_lantern.*
-r=nerfstick.use.minecraft.*_leaves.*
-r=nerfstick.use.minecraft.*_log.*
-r=nerfstick.use.minecraft.*_rail.*
-r=nerfstick.use.minecraft.*_repeater.*
-r=nerfstick.use.minecraft.*_sign.*
-r=nerfstick.use.minecraft.*_stairs.*
-r=nerfstick.use.minecraft.*_slab.*
-r=nerfstick.use.minecraft.*_trapdoor.*
-r=nerfstick.use.minecraft.*_wall.*
-r=nerfstick.use.minecraft.*_door.hinge
 ```
 
 ---
@@ -117,7 +95,7 @@ Nerfstick can optionally integrate with:
 
 * Updated for Paper 1.21+ API
 * Removed deprecated NMS usage
-* Revised permission resolution logic
+* Replaced per-block/per-property permissions with manipulation-category permissions
 * Improved validation pipeline for block state changes
 * Enhanced compatibility with modern protection plugins
 * **Fixed:** enum-valued block properties (`facing`, `axis`, `half`, `shape`,
@@ -127,11 +105,8 @@ Nerfstick can optionally integrate with:
 * **Fixed:** the `north`/`east`/`south`/`west`/`up`/`down` boolean faces on
   fences, glass panes, walls, and glow lichen, which use a different Bukkit API
   (`MultipleFacing`) than every other property.
-* **Fixed:** the `nerfstick.use.minecraft.<block>.<state>` permission whitelist
-  from the README was defined but never actually checked — every player could
-  edit every property regardless of permissions. It is now enforced per
-  property: unauthorized properties are filtered out of the selection cycle
-  entirely.
+* Refactored the plugin into focused services for event handling, block-state
+  cycling, permission checks, protection hooks, and update notifications.
 * **Fixed:** a crash (`ArrayIndexOutOfBoundsException`) in permission
   resolution for any block ID without an explicit namespace.
 * Added `softdepend` on WorldGuard/GriefPrevention so protection checks are
